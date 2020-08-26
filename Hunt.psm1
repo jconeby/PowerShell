@@ -333,3 +333,47 @@ function Get-BaselineHash
 
 }
 
+
+<# This code comes from https://github.com/davehull/Kansa. I just turned it into a function to
+fit our purposes. #>
+
+function Get-Prefetch 
+{
+    [cmdletbinding()]
+    Param
+    (
+        [Parameter()]
+        [string[]]
+        $ComputerName,
+
+        [pscredential]
+        $Credential
+    )
+    Begin
+    {
+        If (!$Credential) {$Credential = Get-Credential}
+    }
+    Process
+    {   
+        Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
+            $pfconf = (Get-ItemProperty "hklm:\system\currentcontrolset\control\session manager\memory management\prefetchparameters").EnablePrefetcher 
+
+            Switch -Regex ($pfconf) {
+                "[1-3]" {
+                    $o = "" | Select-Object FullName, CreationTimeUtc, LastAccessTimeUtc, LastWriteTimeUtc
+                    ls $env:windir\Prefetch\*.pf | % {
+                        $o.FullName = $_.FullName;
+                        $o.CreationTimeUtc = Get-Date($_.CreationTimeUtc) -format o;
+                        $o.LastAccesstimeUtc = Get-Date($_.LastAccessTimeUtc) -format o;
+                        $o.LastWriteTimeUtc = Get-Date($_.LastWriteTimeUtc) -format o;
+                        $o }
+                         }
+            default {
+                Write-Output "Prefetch not enabled on ${env:COMPUTERNAME}."
+                    }
+            }
+        } 
+
+    }
+}
+
