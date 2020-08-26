@@ -1,0 +1,39 @@
+Key,IOC
+Registry::HKEY_USERS\*\SOFTWARE\Sysinternals\PsExec\EulaAccepted,PSExec
+Registry::HKEY_USERS\*\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist\*\Count\*\*,PSExec
+Registry::HKEY_USERS\*\Software\Microsoft\Windows Script Host,wmiexec-vbs.htm
+Registry::HKEY_USERS\*\Software\Microsoft\Windows Script Host\Settings,wmiexec-vbs.htm
+HKLM:\HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\services\SharedAccess\Parameters\FirewallPolicy\FirewallRules\*,BeginX
+HKLM:\HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SharedAccess\Parameters\FirewallPolicy\FirewallRules\*,BeginX
+HKLM:\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Reliability Analysis\RAC\WmiLastTime,WinRM
+Registry::HKEY_USERS\*\Software\Classes\Local Settings\MuiCache\1\826182D0\@%Systemroot%\system32\*,WinRM
+Registry::HKEY_USERS\*\Local Settings\MuiCache\1\826182D0\@%Systemroot%\system32\*,WinRM
+HKLM:\HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\VSS\Diag\BITS Writer,BITS
+Registry::HKEY_USERS\*\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist\{CEBFF5CD-ACE2-4F4F-9178-9926F41749EA}\Count\{1NP14R77-02R7-4R5Q-O744-2RO1NR5198O7}\JvaqbjfCbjreFuryy\i1.0\cbjrefuryy.rkr,BITS
+"Registry::HKEY_USERS\*\SOFTWARE\Microsoft\ADs\Providers\LDAP\CN=Aggregate,CN=Schema,CN=Configuration,DC=*",Find-GPOPasswords.ps1
+Registry::HKEY_USERS\*\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist\{CEBFF5CD-ACE2-4F4F-9178-9926F41749EA}\Count\{1NP14R77-02R7-4R5Q-O744-2RO1NR5198O7}\JvaqbjfCbjreFuryy\i1.0\cbjrefuryy.rkr,Get-GPPPassword
+Registry::HKEY_USERS\*\SOFTWARE\Microsoft\Windows\CurrentVersion\Search\JumplistData\{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\WindowsPowerShell\v1.0\powershell.exe,Get-GPPPassword
+Registry::HKEY_USERS\*\SOFTWARE\Microsoft\Windows\CurrentVersion\Search\JumplistData\{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\WindowsPowerShell\*\powershell.exe,Get-GPPPassword
+Registry::HKEY_USERS\*\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist\{CEBFF5CD-ACE2-4F4F-9178-9926F41749EA}\Count\{1NP14R77-02R7-4R5Q-O744-2RO1NR5198O7}\JvaqbjfCbjreFuryy\i1.0\cbjrefuryy.rkr,Invoke-Mimikatz
+Registry::HKEY_USERS\*\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist\{*}\Count\{*}\JvaqbjfCbjreFuryy\i1.0\cbjrefuryy.rkr,Out-Minidump (PowerSploit)
+Registry::HKEY_USERS\*\SOFTWARE\Microsoft\Windows\CurrentVersion\Search\JumplistData\{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\WindowsPowerShell\v1.0\powershell.exe,PowerMemory (RWMC Tool)
+Registry::HKEY_USERS\*\Software\Microsoft\Windows\CurrentVersion\Internet Settings\Wpad\WpadLastNetwork,Fake wpad
+Registry::HKEY_USERS\*\Software\Microsoft\Windows\CurrentVersion\Internet Settings\Wpad,Fake wpad
+Registry::HKEY_USERS\*\SOFTWARE\Microsoft\Terminal Server Client\Default\MRU0,RDP
+Registry::HKEY_USERS\*\SOFTWARE\Microsoft\Terminal Server Client\Servers\*\UsernameHint,RDP
+Registry::HKEY_USERS\*\SOFTWARE\Microsoft\Windows\CurrentVersion\Search\JumplistData\Microsoft.Windows.RemoteDesktop,RDP
+Registry::HKEY_USERS\*\SOFTWARE\Microsoft\Windows\CurrentVersion\Search\JumplistData\Microsoft.Windows.RemoteDesktop,RDP
+Registry::HKEY_USERS\*\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist\{CEBFF5CD-ACE2-4F4F-9178-9926F41749EA}\Count\Zvpebfbsg.Jvaqbjf.ErzbgrQrfxgbc,RDP
+Registry::HKEY_USERS\*\SOFTWARE\Microsoft\Terminal Server Client\Default\AddIns\RDPDR,RDP
+"Registry::HKEY_USERS\*\SOFTWARE\Microsoft\Windows\CurrentVersion\Search\JumplistData\Microsoft.Windows.RemoteDesktop	",RDP
+Registry::HKEY_USERS\*\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist\{CEBFF5CD-ACE2-4F4F-9178-9926F41749EA}\Count\Zvpebfbsg.Jvaqbjf.ErzbgrQrfxgbc,RDP
+HKLM:\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{*}.sdb\DisplayName,SDB UAC Bypass
+HKLM:\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{*}.sdb\UninstallString,SDB UAC Bypass
+HKLM:\HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Control\DeviceClasses\{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}\##?#STORAGE#VolumeSnapshot#HarddiskVolumeSnapshot*#{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}\DeviceInstance,ntdsutil
+Registry::HKEY_USERS\*\Software\Microsoft\Windows\CurrentVersion\Explorer\MountPoints2\CPC\Volume\{*},ntdsutil
+HKLM:\HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Control\Class\{533c5b84-ec70-11d2-9505-00c04f79deaf}\0000,vssadmin
+HKLM:\HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Control\DeviceClasses\{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}\##?#STORAGE#VolumeSnapshot#HarddiskVolumeSnapshot[Number]#{53f5630d-b6bf-11d0-94f2-00a0c91efb8b},vssadmin
+HKLM:\HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Enum\STORAGE\VolumeSnapshot,vssadmin
+HKLM:\HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\VSS,vssadmin
+Registry::HKEY_USERS\*\SOFTWARE\Sysinternals\Sdelete,sdelete
+Registry::HKEY_USERS\*\SOFTWARE\Sysinternals\SDelete\EulaAccepted,sdelete

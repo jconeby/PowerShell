@@ -1,0 +1,99 @@
+ID,Category,Description,Level,Event_Log,Event_Source
+1,Application Crashes,EMET,Warning,Application,EMET
+2,Software and Service Installation,Update Packages Installed,Informational,Setup,Microsoft-Windows-Servicing
+6,Software and Service Installation,New Kernel Filter Driver,Informational,System,Microsoft-Windows-FilterManager
+19,Software and Service Installation,Windows Update Installed,Informational,System,Microsoft-Windodws-WindowsUpdateClient
+104,Clearing Event Logs,Event Log was Cleared,Informational,System,Microsoft-Windows-Eventlog
+219,Kernel Driver Signing,Failed Kernel Driver Loading,Warning,System,Microsoft-Windows-Kernel-PnP
+856,Application Whitelisting,SRP Block,Warning,Application,Microsoft-Windows-SoftwareRestrictionPolicies
+866,Application Whitelisting,SRP Block,Warning,Application,Microsoft-Windows-SoftwareRestrictionPolicies
+867,Application Whitelisting,SRP Block,Warning,Application,Microsoft-Windows-SoftwareRestrictionPolicies
+868,Application Whitelisting,SRP Block,Warning,Application,Microsoft-Windows-SoftwareRestrictionPolicies
+882,Application Whitelisting,SRP Block,Warning,Application,Microsoft-Windows-SoftwareRestrictionPolicies
+1000,Application Crashes,App Error,Error,Application,Application Error
+1001,Application Crashes,WER,Informational,Application,Windows Error Reporting
+1002,Application Crashes,App Hang,Error,Application,Application Hang
+1009,Windows Update Errors,Hotpatching Failed,Informational,Setup,Microsoft-Windows-Servicing
+1022,Software and Service Installation,New MSI File Installed,Informational,Application,MsiInstaller
+1023,Software and Service Installation,New MSI File Installed,Informational,Application,MsiInstaller
+1102,Clearing Event Logs,Audit Log was Cleared,Informational,Security,Microsoft-Windows-Eventlog
+1125,Group Policy Errors,Internal Error,Error,System,Microsoft-Windows-Group-Policy
+1127,Group Policy Errors,Generic Internal Error,Error,System,Microsoft-Windows-Group-Policy
+1129,Group Policy Errors,Group Policy Application Failed due to Connectivity,Error,System,Microsoft-Windows-Group-Policy
+4624,Account Usage,Successful User Account Login,Informational,Security,Microsoft-Windows-Security-Auditing
+4625,Account Usage,Failed User Account Login,Informational,Security,Microsoft-Windows-Security-Auditing
+4634,An Account was logged off,An Account was logged off,Information,Security,Microsoft-Windows-Security-Auditing
+4648,Account Usage,Account Login with Explicit Credentials,Informational,Security,Microsoft-Windows-Security-Auditing
+4728,Account Usage,User Added to Privileged Group,Informational,Security,Microsoft-Windows-Security-Auditing
+4732,Account Usage,User Added to Privileged Group,Informational,Security,Microsoft-Windows-Security-Auditing
+4735,Account Usage,Security-Enabled group Modification,Informational,Security,Microsoft-Windows-Security-Auditing
+4740,Account Usage,Account Lockouts,Informational,Security,Microsoft-Windows-Security-Auditing
+4756,Account Usage,User Added to Privileged Group,Informational,Security,Microsoft-Windows-Security-Auditing
+5038,Kernel Driver Signing,Detected an invalid image hash of a file,Informational,Security,Microsoft-Windows-Security-Auditing
+6281,Kernel Driver Signing,Detected an invalid page hash of an image file,Informational,Security,Microsoft-Windows-Security-Auditing
+7022,System or Service Failures,Windows Service Fails or Crashes,Error,System,Service Control Manager
+7023,System or Service Failures,Windows Service Fails or Crashes,Error,System,Service Control Manager
+7024,System or Service Failures,Windows Service Fails or Crashes,Error,System,Service Control Manager
+7026,System or Service Failures,Windows Service Fails or Crashes,Error,System,Service Control Manager
+7031,System or Service Failures,Windows Service Fails or Crashes,Error,System,Service Control Manager
+7032,System or Service Failures,Windows Service Fails or Crashes,Error,System,Service Control Manager
+7034,System or Service Failures,Windows Service Fails or Crashes,Error,System,Service Control Manager
+7045,Software and Service Installation,New Windows Service,Informational,System,Service Control Manager
+903,Software and Service Installation,New Application Installation,Informational,Microsoft-Windows-Application-Experience/Program-Inventory,Microsoft-Windows-Application-Experience
+904,Software and Service Installation,New Application Installation,Informational,Microsoft-Windows-Application-Experience/Program-Inventory,Microsoft-Windows-Application-Experience
+905,Software and Service Installation,Updated Application,Informational,Microsoft-Windows-Application-Experience/Program-Inventory,Microsoft-Windows-Application-Experience
+906,Software and Service Installation,Updated Application,Informational,Microsoft-Windows-Application-Experience/Program-Inventory,Microsoft-Windows-Application-Experience
+907,Software and Service Installation,Removed Application,Informational,Microsoft-Windows-Application-Experience/Program-Inventory,Microsoft-Windows-Application-Experience
+908,Software and Service Installation,Removed Application,Informational,Microsoft-Windows-Application-Experience/Program-Inventory,Microsoft-Windows-Application-Experience
+800,Software and Service Installation,Summary of Software Activities,Informational,Microsoft-Windows-Application-Experience/Program-Inventory,Microsoft-Windows-Application-Experience
+8006,Application Whitelisting,AppLocker Warning,Error Warning,Microsoft-Windows-ApplLocker/MSI and Script,Microsoft-Windows-AppLocker
+8007,Application Whitelisting,AppLocker Warning,Error Warning,Microsoft-Windows-ApplLocker/MSI and Script,Microsoft-Windows-AppLocker
+8003,Application Whitelisting,AppLocker Block,Error Warning,Microsoft-Windows-AppLocker/EXE and DLL,Microsoft-Windows-AppLocker
+8004,Application Whitelisting,AppLocker Block,Error Warning,Microsoft-Windows-AppLocker/EXE and DLL,Microsoft-Windows-AppLocker
+3001,Kernel Driver Signing,Code Integrity Check,"Warning, Error",Microsoft-Windows-CodeIntegrity/Operational,Microsoft-Windows-CodeIntegrity
+3002,Kernel Driver Signing,Code Integrity Check,"Warning, Error",Microsoft-Windows-CodeIntegrity/Operational,Microsoft-Windows-CodeIntegrity
+3003,Kernel Driver Signing,Code Integrity Check,"Warning, Error",Microsoft-Windows-CodeIntegrity/Operational,Microsoft-Windows-CodeIntegrity
+3004,Kernel Driver Signing,Code Integrity Check,"Warning, Error",Microsoft-Windows-CodeIntegrity/Operational,Microsoft-Windows-CodeIntegrity
+3010,Kernel Driver Signing,Code Integrity Check,"Warning, Error",Microsoft-Windows-CodeIntegrity/Operational,Microsoft-Windows-CodeIntegrity
+3023,Kernel Driver Signing,Code Integrity Check,"Warning, Error",Microsoft-Windows-CodeIntegrity/Operational,Microsoft-Windows-CodeIntegrity
+400,External Media Detection,New Mass Storage Installation,Informational Error,Microsoft-Windows-Kernel-PnP/Device Config,Microsoft-Windows-Kernel-PnP
+410,External Media Detection,New Mass Storage Installation,Informational Error,Microsoft-Windows-Kernel-PnP/Device Config,Microsoft-Windows-Kernel-PnP
+10000,Mobile Device Activities,Network Connection and Disconnection Status (Wired and Wireless),Informational,Microsoft-Windows-NetworkProfile/Operational,Microsoft-Windows-NetworkProfile
+10001,Mobile Device Activities,Network Connection and Disconnection Status (Wired and Wireless),Informational,Microsoft-Windows-NetworkProfile/Operational,Microsoft-Windows-NetworkProfile
+307,Printing Services,Printing Document,Informational Error,Microsoft-Windows-PrintService/Operational,Microsoft-Windows-PrintService
+43,External Media Detection,New Device Information,Informational Error,Microsoft-Windows-USB-USBHUB3-Analytic,Microsoft-Windows-USB-USBHUB3
+1005,Windows Defender Activities,Scan Failed,Error,Microsoft-Windows-Windows Defender/Operational,Microsoft-Windows-Windows-Defender
+1006,Windows Defender Activities,Detected Malware,Warning,Microsoft-Windows-Windows Defender/Operational,Microsoft-Windows-Windows-Defender
+1008,Windows Defender Activities,Action on Malware Failed,Error,Microsoft-Windows-Windows Defender/Operational,Microsoft-Windows-Windows-Defender
+1010,Windows Defender Activities,Failed to remove item from quarantine,Error,Microsoft-Windows-Windows Defender/Operational,Microsoft-Windows-Windows-Defender
+2001,Windows Defender Activities,Failed to update signatures,Error,Microsoft-Windows-Windows Defender/Operational,Microsoft-Windows-Windows-Defender
+2003,Windows Defender Activities,Failed to update engine,Error,Microsoft-Windows-Windows Defender/Operational,Microsoft-Windows-Windows-Defender
+2004,Windows Defender Activities,Reverting to last known good set of signatures,Warning,Microsoft-Windows-Windows Defender/Operational,Microsoft-Windows-Windows-Defender
+3002,Windows Defender Activities,Real-Time Protection failed,Error,Microsoft-Windows-Windows Defender/Operational,Microsoft-Windows-Windows-Defender
+5008,Windows Defender Activities,Unexpected Error,Error,Microsoft-Windows-Windows Defender/Operational,Microsoft-Windows-Windows-Defender
+2004,Windows Firewall,Firewall Rule Add,Informational,Microsoft-Windows-Windows Firewall With Advanced Security/Firewall,Microsoft-Windows-Windows Firewall With Advanced Security
+2005,Windows Firewall,Firewall Rule Change,Informational,Microsoft-Windows-Windows Firewall With Advanced Security/Firewall,Microsoft-Windows-Windows Firewall With Advanced Security
+2006,Windows Firewall,Firewall Rules Deleted,Informational,Microsoft-Windows-Windows Firewall With Advanced Security/Firewall,Microsoft-Windows-Windows Firewall With Advanced Security
+2033,Windows Firewall,Firewall Rules Deleted,Informational,Microsoft-Windows-Windows Firewall With Advanced Security/Firewall,Microsoft-Windows-Windows Firewall With Advanced Security
+2009,Windows Firewall,Firewall Failed to load Group Policy,Error,Microsoft-Windows-Windows Firewall With Advanced Security/Firewall,Microsoft-Windows-Windows Firewall With Advanced Security
+20,Windows Update Errors,Windows Update Failed,Error,Microsoft-Windows-WindowsUpdateClient/Operational,Microsoft-Windows-WindowsUpdateClient
+24,Windows Update Errors,Windows Update Failed,Error,Microsoft-Windows-WindowsUpdateClient/Operational,Microsoft-Windows-WindowsUpdateClient
+25,Windows Update Errors,Windows Update Failed,Error,Microsoft-Windows-WindowsUpdateClient/Operational,Microsoft-Windows-WindowsUpdateClient
+31,Windows Update Errors,Windows Update Failed,Error,Microsoft-Windows-WindowsUpdateClient/Operational,Microsoft-Windows-WindowsUpdateClient
+34,Windows Update Errors,Windows Update Failed,Error,Microsoft-Windows-WindowsUpdateClient/Operational,Microsoft-Windows-WindowsUpdateClient
+35,Windows Update Errors,Windows Update Failed,Error,Microsoft-Windows-WindowsUpdateClient/Operational,Microsoft-Windows-WindowsUpdateClient
+8000,Mobile Device Activities,Starting a Wireless connection,Informational,Microsoft-Windows-WLAN-AutoConfig/Operational,Microsoft-Windows-WLAN-AutoConfig
+8011,Mobile Device Activities,Starting a Wireless connection,Informational,Microsoft-Windows-WLAN-AutoConfig/Operational,Microsoft-Windows-WLAN-AutoConfig
+8001,Mobile Device Activities,Successfully connected to Wireless connection,Informational,Microsoft-Windows-WLAN-AutoConfig/Operational,Microsoft-Windows-WLAN-AutoConfig
+8003,Mobile Device Activities,Disconnect from Wireless connection,Informational,Microsoft-Windows-WLAN-AutoConfig/Operational,Microsoft-Windows-WLAN-AutoConfig
+11000,Mobile Device Activities,Wireless Association Status,Informational Error,Microsoft-Windows-WLAN-AutoConfig/Operational,Microsoft-Windows-WLAN-AutoConfig
+11001,Mobile Device Activities,Wireless Association Status,Informational Error,Microsoft-Windows-WLAN-AutoConfig/Operational,Microsoft-Windows-WLAN-AutoConfig
+11002,Mobile Device Activities,Wireless Association Status,Informational Error,Microsoft-Windows-WLAN-AutoConfig/Operational,Microsoft-Windows-WLAN-AutoConfig
+11004,Mobile Device Activities,"Wireless Security Started, Stopped, Successful, or Failed",Informational Error,Microsoft-Windows-WLAN-AutoConfig/Operational,Microsoft-Windows-WLAN-AutoConfig
+11005,Mobile Device Activities,"Wireless Security Started, Stopped, Successful, or Failed",Informational Error,Microsoft-Windows-WLAN-AutoConfig/Operational,Microsoft-Windows-WLAN-AutoConfig
+11010,Mobile Device Activities,"Wireless Security Started, Stopped, Successful, or Failed",Informational Error,Microsoft-Windows-WLAN-AutoConfig/Operational,Microsoft-Windows-WLAN-AutoConfig
+11006,Mobile Device Activities,"Wireless Security Started, Stopped, Successful, or Failed",Informational Error,Microsoft-Windows-WLAN-AutoConfig/Operational,Microsoft-Windows-WLAN-AutoConfig
+8002,Mobile Device Activities,Wireless Connection Failed,Error,Microsoft-Windows-WLAN-AutoConfig/Operational,Microsoft-Windows-WLAN-AutoConfig
+12011,Mobile Device Activities,Wireless Authentication Started and Failed,Informational Error,Microsoft-Windows-WLAN-AutoConfig/Operational,Microsoft-Windows-WLAN-AutoConfig
+12012,Mobile Device Activities,Wireless Authentication Started and Failed,Informational Error,Microsoft-Windows-WLAN-AutoConfig/Operational,Microsoft-Windows-WLAN-AutoConfig
+12013,Mobile Device Activities,Wireless Authentication Started and Failed,Informational Error,Microsoft-Windows-WLAN-AutoConfig/Operational,Microsoft-Windows-WLAN-AutoConfig
