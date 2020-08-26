@@ -1,12 +1,21 @@
-﻿function Get-UniqueLower {
-Param([Parameter(Mandatory=$True,HelpMessage="Error: Please enter the array")]$arrayObject)
-  $lowerArray = foreach ($object in $arrayObject) {
-     $object.ToLower() }
+function Get-UniqueLower 
+{
+    [cmdletbinding()]
+    Param
+    ([Parameter(ValueFromPipeline=$true)]
+    [Array]
+    $ArrayObject
+    )
+    
+    Process
+    {   
+     $lowerArray = foreach ($object in $ArrayObject) {
+        $object.ToLower() }
 
-  $uniqueArray = $lowerArray | Get-Unique
+      $lowerArray = $lowerArray | Get-Unique
   
-  return $uniqueArray
-
+      return $lowerArray
+    }
 }
 
 
@@ -37,7 +46,7 @@ function Group-ProcessByName
 
      return $groupProcesses
      }
-     }
+ }
 
 
 function Group-ProcessByPath 
@@ -67,7 +76,6 @@ function Group-ProcessByPath
      return $groupProcesses
      }
      }
-
 
 
 function Get-WmiProcess 
@@ -324,3 +332,4 @@ function Get-BaselineHash
     }
 
 }
+
