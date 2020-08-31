@@ -388,3 +388,135 @@ function Get-Prefetch
     }
 }
 
+function Get-LGroup
+{
+    [cmdletbinding()]
+    Param
+    (
+        [Parameter(ValueFromPipeline=$true)]
+        [string[]]
+        $ComputerName,
+
+        [pscredential]
+        $Credential
+    )
+    Begin
+    {
+        If (!$Credential) {$Credential = Get-Credential}
+    }
+    Process
+    {
+        Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
+            try
+            {Get-WmiObject -Class Win32_Group}
+            catch
+            {net localgroup administrators}
+        }
+    }    
+} 
+
+
+function Get-LUser
+{
+    [cmdletbinding()]
+    Param
+    (
+        [Parameter(ValueFromPipeline=$true)]
+        [string[]]
+        $ComputerName,
+
+        [pscredential]
+        $Credential
+    )
+    Begin
+    {
+        If (!$Credential) {$Credential = Get-Credential}
+    }
+    Process
+    {
+        Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
+            try
+            {Get-WmiObject -Class Win32_UserAccount -Filter "LocalAccount='True'"}
+            catch
+            {net user}
+        }
+        
+    } 
+} 
+
+
+
+function Get-LGroupMember
+{
+    [cmdletbinding()]
+    Param
+    (
+        [Parameter(ValueFromPipeline=$true)]
+        [string[]]
+        $ComputerName,
+
+        [pscredential]
+        $Credential
+    )
+    Begin
+    {
+        If (!$Credential) {$Credential = Get-Credential}
+    }
+    Process
+    {
+        Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
+            try
+            {foreach ($name in (Get-WmiObject -Class Win32_Group).Name) {
+             [PSCustomObject]@{
+             GroupName = $name 
+             Member    = (Get-LocalGroupMember $name)}                                   
+             }}
+      
+            catch
+            {foreach ($name in (Get-WmiObject -Class Win32_Group).Name) {
+             [PSCustomObject]@{
+             GroupName = $name 
+             Member    = Get-WmiObject win32_groupuser | Where-Object {$_.groupcomponent -like "*$name*"} | ForEach-Object {  
+             $_.partcomponent –match ".+Domain\=(.+)\,Name\=(.+)$" > $null  
+             $matches[1].trim('"') + "\" + $matches[2].trim('"')  
+             }  
+   
+             }
+             }}
+        }
+        
+    } 
+} 
+
+
+
+function Get-Connection
+{
+    [cmdletbinding()]
+    Param
+    (
+        [Parameter(ValueFromPipeline=$true)]
+        [string[]]
+        $ComputerName,
+
+        [pscredential]
+        $Credential
+    )
+    Begin
+    {
+        If (!$Credential) {$Credential = Get-Credential}
+    }
+    Process
+    {
+        Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
+            try
+            {Get-NetTCPConnection -State Established | 
+            Select-Object -Property LocalAddress, LocalPort, RemoteAddress, 
+            RemotePort, State, @{name='Process';expression={(Get-Process -Id $_.OwningProcess).Name}}, CreationTime}
+            catch
+            {netstat -ano}
+        }
+    }    
+} 
+
+
