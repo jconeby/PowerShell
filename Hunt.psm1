@@ -438,7 +438,7 @@ function Get-LUser
             try
             {Get-WmiObject -Class Win32_UserAccount -Filter "LocalAccount='True'"}
             catch
-            {net user}
+            {wmic useraccount list brief}
         }
         
     } 
