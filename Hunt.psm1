@@ -81,7 +81,7 @@ function Group-ProcessByPath
      }
      else
      {
-       return ($groupProcesses | Where-Object {$_.Count -ge $Threshold})  
+       return ($groupProcesses | Where-Object {$_.Count -le $Threshold})  
      }
      
      }
