@@ -36,9 +36,9 @@ function Group-ProcessByName
                  Count          = $proc.Count
                  Name           = $proc.Name
                  PSComputerName = ([PSCustomObject]@{PSComputerName = ($proc.Group.PSComputerName | Get-Unique) -join ','}).PSComputerName
-                 FilePaths      = ([PSCustomObject]@{FilePaths = (Get-UniqueLower -arrayObject $proc.Group.Path) -join ','}).FilePaths
+                 FilePath       = ([PSCustomObject]@{FilePaths = (Get-UniqueLower -arrayObject $proc.Group.Path) -join ','}).FilePaths
                  FilePathCount  = (Get-UniqueLower -arrayObject $proc.Group.Path).Count
-                 Hashes         = ([PSCustomObject]@{Hashes = ($proc.Group.hash | Sort-Object | Get-Unique) -join ','}).Hashes
+                 Hash           = ([PSCustomObject]@{Hashes = ($proc.Group.hash | Sort-Object | Get-Unique) -join ','}).Hashes
                  Group          = $proc.Group
 
             }
@@ -65,7 +65,7 @@ function Group-ProcessByPath
             [PSCustomObject]@{
                  Count          = $proc.Count
                  FilePath       = $proc.Name
-                 Names          = ([PSCustomObject]@{Names = ($proc.Group.Name | Get-Unique) -join ','}).Names
+                 Name           = ([PSCustomObject]@{Names = ($proc.Group.Name | Get-Unique) -join ','}).Names
                  PSComputerName = ([PSCustomObject]@{PSComputerName = ($proc.Group.PSComputerName | Get-Unique) -join ','}).PSComputerName
                  Hash           = $proc.Group.hash | Get-Unique
                  Group          = $proc.Group
