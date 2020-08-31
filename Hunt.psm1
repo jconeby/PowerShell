@@ -54,7 +54,10 @@ function Group-ProcessByPath
     [cmdletbinding()]
     Param
     ([Parameter(ValueFromPipeline=$true)]
-    $processObject
+    $processObject,
+
+    [Int32]
+    $Threshold
     )
     
     Process
@@ -65,16 +68,24 @@ function Group-ProcessByPath
             [PSCustomObject]@{
                  Count          = $proc.Count
                  FilePath       = $proc.Name
-                 Name           = ([PSCustomObject]@{Names = ($proc.Group.Name | Get-Unique) -join ','}).Names
+                 Name          = ([PSCustomObject]@{Names = ($proc.Group.Name | Get-Unique) -join ','}).Names
                  PSComputerName = ([PSCustomObject]@{PSComputerName = ($proc.Group.PSComputerName | Get-Unique) -join ','}).PSComputerName
                  Hash           = $proc.Group.hash | Get-Unique
                  Group          = $proc.Group
 
             }
      }
-
-     return $groupProcesses
+     if ($Threshold -eq $null)
+     {
+       return $groupProcesses  
      }
+     else
+     {
+       return ($groupProcesses | Where-Object {$_.Count -ge $Threshold})  
+     }
+     
+     }
+
      }
 
 
