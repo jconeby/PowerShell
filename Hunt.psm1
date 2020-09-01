@@ -342,6 +342,47 @@ function Get-BaselineHash
     }
 }
 
+
+function Get-RecentModFile 
+{
+    [cmdletbinding()]
+    Param
+    (
+        [Parameter()]
+        [String]
+        $StartPath,
+
+        [Int32]
+        $Days,
+
+        [string[]]
+        $ComputerName,
+
+        [pscredential]
+        $Credential
+    )
+    Begin
+    {
+        If (!$Credential) {$Credential = Get-Credential}
+    }
+    Process
+    {   
+         Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
+                $files = Get-ChildItem -File -Path $using:startPath -Recurse | Where-Object {$_.LastWriteTime -gt (get-date).addDays(-($using:Days)) -or $_.CreationTime -gt (get-date).addDays(-($using:Days))}
+
+                foreach ($file in $files) {
+                  [PSCustomObject]@{
+                    Name = $file.FullName
+                    Hash = try {(Get-FileHash $file.FullName).hash}
+                    catch {(certutil -hashfile $file.FullName)[1]}
+                    }}
+        
+        }
+    }
+
+}
+
+
 <# This code comes from https://github.com/davehull/Kansa. I just turned it into a function to
 fit our purposes. #>
 
