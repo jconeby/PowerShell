@@ -558,3 +558,154 @@ function Get-Connection
 } 
 
 
+function Get-LoggedOnUser
+{
+    [cmdletbinding()]
+    Param
+    (
+        [Parameter(ValueFromPipeline=$true)]
+        [string[]]
+        $ComputerName,
+
+        [pscredential]
+        $Credential
+    )
+    Begin
+    {
+        If (!$Credential) {$Credential = Get-Credential}
+    }
+    Process
+    {
+        Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
+            try
+            {query user}
+            catch
+            {Get-CimInstance -Class Win32_ComputerSystem | Select-Object Username}
+        }
+    }    
+} 
+
+#Found Survey-Firwall function at https://github.com/ralphmwr/PowerShell-ThreatHunting/blob/master/Survey.psm1
+function Survey-Firewall
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(ValueFromPipeline=$true)]
+        [string[]]
+        $ComputerName,
+
+        [pscredential]
+        $Credential
+    )
+    Begin
+    {
+        If (!$Credential) {$Credential = Get-Credential}
+    }
+    Process
+    {
+        Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
+            $rules         = Get-NetFirewallRule | Where-Object {$_.enabled}
+            $portfilter    = Get-NetFirewallPortFilter
+            $addressfilter = Get-NetFirewallAddressFilter
+
+            foreach ($rule in $rules) {
+                $ruleport    = $portfilter | Where-Object {$_.InstanceID -eq $rule.instanceid}
+                $ruleaddress = $addressfilter | Where-Object {$_.InstanceID -eq $rule.instanceid}
+                $data = @{
+                    InstanceID    = $rule.instanceid.tostring()
+                    Direction     = $rule.direction.tostring()
+                    Action        = $rule.action.tostring()
+                    LocalAddress  = $ruleaddress.LocalAddress.tostring()
+                    RemoteAddress = $ruleaddress.RemoteAddress.tostring()
+                    Protocol      = $ruleport.Protocol.tostring()
+                    LocalPort     = $ruleport.LocalPort -join ","
+                    RemotePort    = $ruleport.RemotePort -join ","
+                }
+                New-Object -TypeName psobject -Property $data
+            }
+        }
+    }
+}
+
+
+function Write-ImportantMessage 
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter()]
+        [Int32]
+        $EventID,
+
+        [String]
+        $AuthPackage
+    )
+
+  Process 
+  {
+
+      if ($EventID -eq 4697)
+      {
+         return 'Service started that could be a malicious script'
+      }
+      elseif ($EventID -eq 4657)
+      {
+         return 'A registry value was modified'
+      }
+      elseif ($EventID -eq 4624 -and $AuthPackage -eq 'NTLM')
+      {
+         return 'Pass the Hash Attack'
+      }
+      elseif ($EventId -eq 4698)
+      {
+        return 'A scheduled task was created'
+      }
+      elseif ($EventID -eq 4625 -and $AuthPackage -eq 'NTLM')
+      {
+         return 'Pass the Hash Attack Attempted'
+      }
+
+      elseif ($EventID -eq 1102)
+      {
+         return 'Audit Log was Cleared'
+      }
+
+      elseif ($EventID -eq 4728 -or $EventID -eq 4732 -or $EventId -eq 4756)
+      {
+         return 'User Added to Privileged Group'
+      }
+
+  }
+ }
+
+ 
+ function Format-Events 
+ {
+     [CmdletBinding()]
+        param
+        (
+            [Parameter()]
+            $logs
+        )
+
+    Process
+    {
+        $logsObject = ForEach ($log in $logs) {
+        [PSCustomObject]@{
+             IP           = $log.PSComputerName
+             Time         = $log.TimeGenerated
+             EventID      = $log.EventID
+             Index        = $log.Index
+             Message      = $log.Message
+             AccountName  = $log.ReplacementStrings[5]
+             AuthPackage  = $log.ReplacementStrings[10]
+             LogonType    = $log.ReplacementStrings[8]
+             AlertMessage = Write-ImportantMessage -EventID $log.EventId -AuthPackage $log.ReplacementStrings[10]}
+        }
+          return $logsObject
+
+    }
+
+}
+ 
