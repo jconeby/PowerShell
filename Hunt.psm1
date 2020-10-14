@@ -36,9 +36,9 @@ function Group-ProcessByName
                  Count          = $proc.Count
                  Name           = $proc.Name
                  PSComputerName = ([PSCustomObject]@{PSComputerName = ($proc.Group.PSComputerName | Get-Unique) -join ','}).PSComputerName
-                 FilePath       = ([PSCustomObject]@{FilePaths = (Get-UniqueLower -arrayObject $proc.Group.Path) -join ','}).FilePaths
+                 FilePath      = ([PSCustomObject]@{FilePaths = (Get-UniqueLower -arrayObject $proc.Group.Path) -join ','}).FilePaths
                  FilePathCount  = (Get-UniqueLower -arrayObject $proc.Group.Path).Count
-                 Hash           = ([PSCustomObject]@{Hashes = ($proc.Group.hash | Sort-Object | Get-Unique) -join ','}).Hashes
+                 Hash         = ([PSCustomObject]@{Hashes = ($proc.Group.hash | Sort-Object | Get-Unique) -join ','}).Hashes
                  Group          = $proc.Group
 
             }
@@ -123,6 +123,7 @@ function Get-WmiProcess
                               @{name       = "Owner"
                                 expression = {@($_.getowner().domain, $_.getowner().user) -join "\"}
                               }
+                             
                               
         }
     }
@@ -307,42 +308,6 @@ function Group-Event
 }
 
 
-function Get-BaselineHash 
-{
-    [cmdletbinding()]
-    Param
-    (
-        [Parameter()]
-        [String]
-        $StartPath,
-
-        [string[]]
-        $ComputerName,
-
-        [pscredential]
-        $Credential
-    )
-    Begin
-    {
-        If (!$Credential) {$Credential = Get-Credential}
-    }
-    Process
-    {   
-         Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
-                $files = Get-ChildItem -File -Path $using:startPath -Recurse
-
-                foreach ($file in $files) {
-                  [PSCustomObject]@{
-                    Name = $file.FullName
-                    Hash = try {(Get-FileHash $file.FullName).hash}
-                    catch {(certutil -hashfile $file.FullName)[1]}
-                    }}
-        
-        }
-    }
-}
-
-
 function Get-RecentModFile 
 {
     [cmdletbinding()]
@@ -373,25 +338,23 @@ function Get-RecentModFile
                 foreach ($file in $files) {
                   [PSCustomObject]@{
                     Name = $file.FullName
-                    Hash = try {(Get-FileHash $file.FullName).hash}
-                    catch {(certutil -hashfile $file.FullName)[1]}
-                    }}
+                    Hash = (Get-FileHash $file.FullName).hash
+                    
         
         }
     }
 
 }
 
-
-<# This code comes from https://github.com/davehull/Kansa. I just turned it into a function to
-fit our purposes. #>
-
-function Get-Prefetch 
+function Get-BaselineHash 
 {
     [cmdletbinding()]
     Param
     (
         [Parameter()]
+        [String]
+        $StartPath,
+
         [string[]]
         $ComputerName,
 
@@ -404,27 +367,19 @@ function Get-Prefetch
     }
     Process
     {   
-        Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
-            $pfconf = (Get-ItemProperty "hklm:\system\currentcontrolset\control\session manager\memory management\prefetchparameters").EnablePrefetcher 
+         Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
+                $files = Get-ChildItem -File -Path $using:startPath -Recurse
 
-            Switch -Regex ($pfconf) {
-                "[1-3]" {
-                    $o = "" | Select-Object FullName, CreationTimeUtc, LastAccessTimeUtc, LastWriteTimeUtc
-                    ls $env:windir\Prefetch\*.pf | % {
-                        $o.FullName = $_.FullName;
-                        $o.CreationTimeUtc = Get-Date($_.CreationTimeUtc) -format o;
-                        $o.LastAccesstimeUtc = Get-Date($_.LastAccessTimeUtc) -format o;
-                        $o.LastWriteTimeUtc = Get-Date($_.LastWriteTimeUtc) -format o;
-                        $o }
-                         }
-            default {
-                Write-Output "Prefetch not enabled on ${env:COMPUTERNAME}."
-                    }
-            }
-        } 
-
+                foreach ($file in $files) {
+                  [PSCustomObject]@{
+                    Name = $file.FullName
+                    Hash = (Get-FileHash $file.FullName).hash
+                    
+        
+        }
     }
 }
+
 
 function Get-LGroup
 {
@@ -445,10 +400,7 @@ function Get-LGroup
     Process
     {
         Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
-            try
-            {Get-WmiObject -Class Win32_Group}
-            catch
-            {net localgroup administrators}
+            Get-WmiObject -Class Win32_Group  
         }
     }    
 } 
@@ -472,11 +424,9 @@ function Get-LUser
     }
     Process
     {
-        Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
-            try
-            {Get-WmiObject -Class Win32_UserAccount -Filter "LocalAccount='True'"}
-            catch
-            {wmic useraccount list brief}
+        Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock { 
+            Get-WmiObject -Class Win32_UserAccount -Filter "LocalAccount='True'"
+           
         }
         
     } 
@@ -484,7 +434,7 @@ function Get-LUser
 
 
 
-function Get-LGroupMember
+function Get-LGroupMembers
 {
     [cmdletbinding()]
     Param
@@ -547,12 +497,35 @@ function Get-Connection
     Process
     {
         Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
-            try
-            {Get-NetTCPConnection -State Established | 
+            Get-NetTCPConnection -State Established | 
             Select-Object -Property LocalAddress, LocalPort, RemoteAddress, 
-            RemotePort, State, @{name='Process';expression={(Get-Process -Id $_.OwningProcess).Name}}, CreationTime}
-            catch
-            {netstat -ano}
+            RemotePort, State, @{name='Process';expression={(Get-Process -Id $_.OwningProcess).Name}}, CreationTime} 
+        }
+    }    
+} 
+
+
+function Get-SchTask
+{
+    [cmdletbinding()]
+    Param
+    (
+        [Parameter(ValueFromPipeline=$true)]
+        [string[]]
+        $ComputerName,
+
+        [pscredential]
+        $Credential
+    )
+    Begin
+    {
+        If (!$Credential) {$Credential = Get-Credential}
+    }
+    Process
+    {
+        Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock { 
+            Get-ScheduledTask
+            
         }
     }    
 } 
@@ -584,6 +557,47 @@ function Get-LoggedOnUser
         }
     }    
 } 
+
+
+function Get-Prefetch 
+{
+    [cmdletbinding()]
+    Param
+    (
+        [Parameter()]
+        [string[]]
+        $ComputerName,
+
+        [pscredential]
+        $Credential
+    )
+    Begin
+    {
+        If (!$Credential) {$Credential = Get-Credential}
+    }
+    Process
+    {   
+        Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
+            $pfconf = (Get-ItemProperty "hklm:\system\currentcontrolset\control\session manager\memory management\prefetchparameters").EnablePrefetcher 
+
+            Switch -Regex ($pfconf) {
+                "[1-3]" {
+                    $o = "" | Select-Object FullName, CreationTimeUtc, LastAccessTimeUtc, LastWriteTimeUtc
+                    ls $env:windir\Prefetch\*.pf | % {
+                        $o.FullName = $_.FullName;
+                        $o.CreationTimeUtc = Get-Date($_.CreationTimeUtc) -format o;
+                        $o.LastAccesstimeUtc = Get-Date($_.LastAccessTimeUtc) -format o;
+                        $o.LastWriteTimeUtc = Get-Date($_.LastWriteTimeUtc) -format o;
+                        $o }
+                         }
+            default {
+                Write-Output "Prefetch not enabled on ${env:COMPUTERNAME}."
+                    }
+            }
+        } 
+
+    }
+}
 
 #Found Survey-Firwall function at https://github.com/ralphmwr/PowerShell-ThreatHunting/blob/master/Survey.psm1
 function Survey-Firewall
@@ -708,4 +722,188 @@ function Write-ImportantMessage
     }
 
 }
+ 
+
+function Group-SecurityEventID 
+{
+    [cmdletbinding()]
+    Param
+    (
+        [Parameter()]
+        $EventRecord,
+
+        [PSCustomObject]
+        $EventList
+    )
+
+   Process
+   {
+       $groupEvents = ($EventRecord | Group-Object -Property EventID | Sort-Object -Property Count -Descending)
+
+       $groupEvents = foreach ($event in $groupEvents) {
+        
+            [pscustomObject]@{
+            Count = $event.Count
+            ID = $event.Name
+            Description = ($eventList | Where-Object {$_.ID -eq $event.Name}).Description
+            }
+
+          }
+    
+        return $groupEvents
+   }   
+}
+
+
+#Function taken from SANS whitepaper "Creating an Active Defense Powershell Framework" Author Kyle Snihur
+
+function Create-Report 
+{
+    [cmdletbinding()]
+    Param
+    (
+        [Parameter(Mandatory = $true)]
+        [string]
+        $filename,
+        [Parameter(Mandatory = $true)]
+        [ValidateSet("json","csv")]
+        [string]
+        $fileType = "csv",
+        [Parameter(Mandatory = $true)]
+        $scriptvariable,
+        [Parameter(Mandatory = $true)]
+        [string]
+        $outputFolder
+    )
+
+
+   Process
+   {
+        if($fileType -eq "json"){
+            Invoke-Expression $scriptvariable | Where-Object {$_} | ConvertTo-Json `
+            | Out-File -Force ([string]::Concat($outputFolder,$filename,".",$fileType))
+        }
+        elseif($fileType -eq "csv"){
+            Invoke-Expression $scriptvariable | Where-Object {$_} `
+            | Export-Csv -Path ([string]::Concat($outputFolder,$filename,".",$fileType)) -NoTypeInformation -Force
+        }
+    }
+
+}
+
+<#Function created frome code taken from SANS whitepaper "Creating an Active Defense Powershell Framework" Author Kyle Snihur
+This function can be usefull for creating a software map for normal application installs on a network.  You could use this in combination with
+a Group-Object to determine anomolies #>
+
+function Get-Software 
+{
+    [cmdletbinding()]
+    Param
+    (
+        [Parameter(Mandatory=$true)]
+        [string[]]
+        $ComputerName,
+
+        [pscredential]
+        $Credential
+    )
+
+   Process
+   {
+       $Software = Get-ItemProperty "HKLM:\Software\Wow6432Node\Microsoft\Windows\ `
+       CurrentVersion\Uninstall\*" | Select DisplayName,DisplayVersion,Publisher,InstallDate,UninstallString,InstallLocation
+
+       $Software += Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*" `
+       | Select DisplayName,DisplayVersion,Publisher,InstallDate,UninstallString,InstallLocation
+
+       $Software = $Software | Where-Object {[string]::IsNullOrWhiteSpace($_.displayname) -eq $false} `
+       | Select-Object @{name="ComputerName";expression={$env:COMPUTERNAME}}, * | Sort-Object DisplayName
+
+       $Software
+    }
+}
+
+
+#Function created frome code taken from SANS whitepaper "Creating an Active Defense Powershell Framework" Author Kyle Snihur
+function Get-ARP
+{
+    [cmdletbinding()]
+    Param
+    (
+        [Parameter(ValueFromPipeline=$true)]
+        [string[]]
+        $ComputerName,
+
+        [pscredential]
+        $Credential
+    )
+    Begin
+    {
+        If (!$Credential) {$Credential = Get-Credential}
+    }
+    Process
+    {
+        Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
+            $arp = arp -a
+
+            foreach ($line in $arp)
+            { 
+            $line = $line -replace '^\s+',''
+            $line = $line -split '\s+'
+            if($line[0] -ne $null -and $line[1] -ne $null -and $line[2] -ne $null -and $line[0] -ne "Interface:" `
+                -and $line[0] -ne "Internet" ){
+                [PSCustomObject]@{
+                    ComputerName = $env:COMPUTERNAME
+                    Address      = $line[0]
+                    MAC          = $line[1]
+                    Type         = $line[2] }
+                }
+            }
+        }
+    }    
+} 
+
+<#I created this function to get additional info from ARP such as OS
+The target will ping all the hosts in its ARP cache and check to see
+if it is alive and the TTL #>
+
+function Get-ARPInfo
+{
+    [cmdletbinding()]
+    Param
+    (
+        [Parameter(ValueFromPipeline=$true)]
+        [string[]]
+        $ComputerName,
+
+        [pscredential]
+        $Credential,
+
+        [PSCustomObject]
+        $ARP
+    )
+    Begin
+    {
+        If (!$Credential) {$Credential = Get-Credential}
+    }
+    Process
+    {
+        Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
+            foreach ($object in $ARP) {
+                $pinginfo = Test-Connection -ComputerName $object.Address -Count 1 -ErrorAction SilentlyContinue             
+                [PSCustomObject]@{
+                    ComputerName = $object.ComputerName
+                    Address      = $object.Address
+                    MAC          = $object.MAC
+                    Type         = $object.Type
+                    InTargetList = $object.Address -in $targets.IP
+                    Alive        = $pinginfo -ne $null
+                    OS           = Get-OSType -TTL $pinginfo.TimeToLive
+                    }
+            }
+            
+        }
+    }    
+} 
+
  
