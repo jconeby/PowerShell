@@ -1,3 +1,6 @@
+<#function used to convert all elements in an array to lower case.
+This can be useful when file paths or program names on different machines have different capitalization #>
+
 function Get-UniqueLower 
 {
     [cmdletbinding()]
@@ -18,7 +21,7 @@ function Get-UniqueLower
     }
 }
 
-
+#Function used to group baseline processes taken on a network.  This can be useful to identify anomolous processes
 function Group-ProcessByName 
 {
     [cmdletbinding()]
@@ -49,6 +52,7 @@ function Group-ProcessByName
  }
 
 
+#Function used to group baseline processes taken on a network.  This can be useful to identify anomolous processes
 function Group-ProcessByPath 
 {
     [cmdletbinding()]
@@ -89,6 +93,7 @@ function Group-ProcessByPath
      }
 
 
+#Function used to pull processes running on machines on a network
 function Get-WmiProcess 
 {
     [cmdletbinding()]
@@ -129,7 +134,7 @@ function Get-WmiProcess
     }
 } 
 
-
+#Function used to pull services running on machines on a network
 function Get-WmiService 
 {
     [cmdletbinding()]
@@ -163,6 +168,7 @@ function Get-WmiService
 }
 
 
+#Will pull the registry key info for all keys listed in an array.
 function Get-Registry 
 {
     [cmdletbinding()]
@@ -193,6 +199,7 @@ function Get-Registry
         }
     }   
 }
+
 
 
 function Get-RegistryIOC 
@@ -240,6 +247,7 @@ function Get-RegistryIOC
 }
 
 
+#Pulls the event logs for all the most important events listed in the CSV file
 function Get-ImportantEvent 
 { 
     [cmdletbinding()]
@@ -906,4 +914,3 @@ function Get-ARPInfo
     }    
 } 
 
- 
