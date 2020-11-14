@@ -52,7 +52,7 @@ function Group-ProcessByName
  }
 
 
-#Function used to group baseline processes taken on a network.  This can be useful to identify anomolous processes
+#Function used to perform least frequency analysis of processes on a network
 function Group-ProcessByPath 
 {
     [cmdletbinding()]
@@ -156,7 +156,7 @@ function Get-WmiService
         Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
             Get-WmiObject win32_Service | 
                 Select-Object Name,
-                              PathName,
+                              @{n='PathName';e={($_.PathName.toLower())}},
                               State,
                               StartMode,
                               StartName,
@@ -347,9 +347,10 @@ function Get-RecentModFile
                   [PSCustomObject]@{
                     Name = $file.FullName
                     Hash = (Get-FileHash $file.FullName).hash
-                    
-        
-        }
+                   }
+                }
+    
+         }
     }
 
 }
@@ -381,11 +382,12 @@ function Get-BaselineHash
                 foreach ($file in $files) {
                   [PSCustomObject]@{
                     Name = $file.FullName
-                    Hash = (Get-FileHash $file.FullName).hash
-                    
-        
-        }
+                    Hash = (Get-FileHash $file.FullName).hash }
+                }
+
+         }
     }
+    
 }
 
 
@@ -507,9 +509,10 @@ function Get-Connection
         Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
             Get-NetTCPConnection -State Established | 
             Select-Object -Property LocalAddress, LocalPort, RemoteAddress, 
-            RemotePort, State, @{name='Process';expression={(Get-Process -Id $_.OwningProcess).Name}}, CreationTime} 
+            RemotePort, State, OwningProcess, @{name='Process';expression={(Get-Process -Id $_.OwningProcess).Name}}, CreationTime 
         }
-    }    
+     }
+        
 } 
 
 
@@ -832,7 +835,29 @@ function Get-Software
 }
 
 
-#Function created frome code taken from SANS whitepaper "Creating an Active Defense Powershell Framework" Author Kyle Snihur
+function Get-OSType
+{
+    [cmdletbinding()]
+    Param
+    (
+        [Parameter(Mandatory=$true)]
+        [int] $TTL
+    )
+
+   Process
+   {
+       switch ($TTL)
+       {
+            {$TTL -lt 65} {return "Linux"}
+            {$TTL -in (65..128)} {return "Windows"}
+            Default {return "OS Unknown"}
+       }
+    }
+}
+
+
+<#Function created frome code taken from SANS whitepaper "Creating an Active Defense Powershell Framework" Author Kyle Snihur
+This will pull the ARP table from the end point #>
 function Get-ARP
 {
     [cmdletbinding()]
@@ -873,7 +898,8 @@ function Get-ARP
 
 <#I created this function to get additional info from ARP such as OS
 The target will ping all the hosts in its ARP cache and check to see
-if it is alive and the TTL #>
+if it is alive, determine if it is Windows or Linux, and tell you if the 
+ip addresses are within the list.  This may be able to identify rogue devices. #>
 
 function Get-ARPInfo
 {
@@ -888,7 +914,10 @@ function Get-ARPInfo
         $Credential,
 
         [PSCustomObject]
-        $ARP
+        $ARPObject,
+
+        [PSCustomObject]
+        $TargetList
     )
     Begin
     {
@@ -904,7 +933,7 @@ function Get-ARPInfo
                     Address      = $object.Address
                     MAC          = $object.MAC
                     Type         = $object.Type
-                    InTargetList = $object.Address -in $targets.IP
+                    InTargetList = $object.Address -in $TargetList.IP
                     Alive        = $pinginfo -ne $null
                     OS           = Get-OSType -TTL $pinginfo.TimeToLive
                     }
@@ -913,4 +942,165 @@ function Get-ARPInfo
         }
     }    
 } 
+
+# NEED TO TEST FUNCTION REMOTELY
+#Received database from https://macaddress.io/database-download/csv
+#This may be able to identify rougue end points on the network
+
+function Get-VendorInfoFromARP
+{
+    [cmdletbinding()]
+    Param
+    (
+        [Parameter(ValueFromPipeline=$true)]
+        [string[]]
+        $ComputerName,
+
+        [pscredential]
+        $Credential,
+
+        [PSCustomObject]
+        $macdb
+    )
+    Begin
+    {
+        If (!$Credential) {$Credential = Get-Credential}
+    }
+    Process
+    {
+        Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
+            $arp = arp -a
+
+            foreach ($line in $arp)
+            { 
+            $line = $line -replace '^\s+',''
+            $line = $line -split '\s+'
+            if($line[0] -ne $null -and $line[1] -ne $null -and $line[2] -ne $null -and $line[0] -ne "Interface:" `
+                -and $line[0] -ne "Internet" ){
+                [PSCustomObject]@{
+                    ComputerName = $env:COMPUTERNAME
+                    Address      = $line[0]
+                    MAC          = $line[1]
+                    Type         = $line[2]
+                    Vendor       = ($using:macdb | Where {$_.oui -eq ($line[1][0..7] -join '')}).companyName }
+                }
+            }
+        }
+    }    
+} 
+
+<#This function will perform a dir walk of hosts on a network
+By using the .NET System.IO.Direction, the function is over 100x faster than using Get-ChildItem #>
+
+ function Get-DirWalk
+{
+    [cmdletbinding()]
+    Param
+    (
+        [Parameter(ValueFromPipeline=$true)]
+        [string[]]
+        $ComputerName,
+
+        [pscredential]
+        $Credential,
+
+        [string]
+        $path
+    )
+    Begin
+    {
+        If (!$Credential) {$Credential = Get-Credential}
+    }
+    Process
+    {
+        Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
+            $files = [System.IO.Directory]::EnumerateFiles($using:path,'*.*','AllDirectories')
+            
+            foreach ($file in $files) {
+                
+                    [PSCustomObject]@{
+                        Name = $file }
+            }       
+            
+        }
+    }
+        
+}
+
+<#This function will take a dir walk and collect hashes
+By using the .NET System.IO.Direction, the function is much faster than Get-FileHash #>
+
+function Get-DirWalkHash
+{
+    [cmdletbinding()]
+    Param
+    (   [Parameter(ValueFromPipeline=$true)]
+
+        [string[]]
+        $ComputerName,
+
+        [pscredential]
+        $Credential,
+
+        [string]
+        $path,
+        
+         [string]
+        $algorithm = 'SHA1'
+    )
+
+    Process
+    {   
+        
+        Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
+            $files = [System.IO.Directory]::EnumerateFiles($using:path,'*.*','AllDirectories')
+            
+            $files = foreach ($file in $files) {
+                    [PSCustomObject]@{
+                        Name = $file
+                        }
+                     }
+            
+            foreach($file in $files) {
+               [PSCustomObject]@{
+               Name = $file.Name
+               Hash = [System.Bitconverter]::ToString([System.Security.Cryptography.HashAlgorithm]::Create('SHA1').ComputeHash([System.Text.Encoding]::UTF8.GetBytes($file[0].Name))) }
+            }   
+
+        }
+    }
+}
+
+ 
+
+<# This function will group the dir walks collected from the hosts and perform
+least frequency analysis of the hashes found to gather files that are only found a certain
+number of hosts determined by the threshold #>
+
+function Group-FilesByHash 
+{
+    [cmdletbinding()]
+    Param
+    ([Parameter(ValueFromPipeline=$true)]
+    $dirWalk,
+
+     [Int32]
+    $threshold
+    )
+    
+    Process
+    {   
+   $groupFiles = ($dirWalk | Group-Object -Property Hash | Where {$_.Count -le $threshold} )
+
+   $groupFiles = foreach($file in $groupFiles) {
+          [PSCustomObject] @{
+                Count      = $file.Count
+                FullName   = $file.Group.FullName
+                Hash       = $file.Group.Hash
+                }
+             }
+
+     return $groupFiles
+     }
+ }
 
