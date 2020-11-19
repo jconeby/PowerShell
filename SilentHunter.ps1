@@ -1,4 +1,4 @@
-﻿Add-Type -AssemblyName PresentationFramework
+Add-Type -AssemblyName PresentationFramework
 
 #Function used to pull processes running on machines on a network
 function Get-WmiProcess 
@@ -835,7 +835,7 @@ $inputXML = @"
 
         <Button Content="Choose File" Name ="browse1Btn" HorizontalAlignment="Left" Height="25" Margin="12,42,0,0" VerticalAlignment="Top" Width="81" Grid.Row="1" Grid.Column="2"/>
         <TextBox Name="targTxt" HorizontalAlignment="Left" Height="25" Margin="103,42,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="425" Grid.Column="2" Grid.Row="1"/>
-        <Label Content="Select the CSV file containing your targets" FontWeight="SemiBold" HorizontalAlignment="Left" Height="32" Margin="3,10,0,0" VerticalAlignment="Top" Width="242" Grid.Row="1" Grid.Column="2"/>
+        <Label Content="Select the CSV file containing your targets or enter your targets" FontWeight="SemiBold" HorizontalAlignment="Left" Height="32" Margin="3,10,0,0" VerticalAlignment="Top" Width="356" Grid.Row="1" Grid.Column="2"/>
         <Button Content="Run Script" Name="runButton" HorizontalAlignment="Left" Height="33" Margin="205,287,0,0" VerticalAlignment="Top" Width="154" Grid.Column="2" Grid.Row="1" RenderTransformOrigin="0.881,0.311"/>
         <Label Content="Username:" HorizontalAlignment="Left" Height="25" Margin="7,55,0,0" VerticalAlignment="Top" Width="76" Grid.Column="2"/>
         <TextBox Name="userTxt" HorizontalAlignment="Left" Height="23" Margin="76,55,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="186" Grid.Column="2"/>
@@ -891,10 +891,20 @@ try {
             }
     }
     
-    #Targets
-    $var_browse1Btn.Add_Click( {$targBrowser.ShowDialog()
-    $var_targTxt.Text = $targBrowser.FileName} )
 
+    #Targets and determine what file type to use
+    $var_browse1Btn.Add_Click( {
+        $targBrowser.ShowDialog()
+        $path = $targBrowser.FileName
+        $extension = ($path[($path.Length - 3)..$path.Length]) -join ""
+        if($extension -eq "csv") {
+            $var_targTxt.Text = (Import-Csv -Path ($targBrowser.FileName) -Header "Hosts").Hosts 
+            } elseif($extension -eq "txt") {
+                $var_targTxt.Text = Get-Content -Path $path
+                } else {
+                    $targBrowser.Dispose()
+                    }
+        })
     
     #Determine which scripts to run based on check boxes
     $var_runButton.Add_Click({
@@ -940,8 +950,9 @@ try {
         $Password = $var_passTxt.SecurePassword
         [PSCredential]$creds = New-Object System.Management.Automation.PSCredential -ArgumentList $Username, $Password
         
-        #Set targets
-        $targets = (Import-Csv -Path ($var_targTxt.Text)).Hosts
+        #Set targets and remove spaces and create array
+        $targets = $var_targTxt.Text.Split(",") -replace '\s+', ''
+            
 
     #----------------------------Progress Bar-------------------------------------------------------------------------
         Add-Type -assembly System.Windows.Forms
@@ -1241,11 +1252,8 @@ try {
         $window.close()
         })
 
-
-
     #Must be last line in script
     $Null = $window.ShowDialog()
-
 }
 
 
