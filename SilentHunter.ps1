@@ -917,7 +917,7 @@ try {
     $var_runButton.Add_Click({
         
         #Create output folder
-        $outputFolder = "C:\Users\jkcon\OneDrive\Desktop\Output\"
+        $outputFolder = [string]::Concat($env:HOMEDRIVE,$env:HOMEPATH,'\Desktop\Output\')
         if(!(Test-Path $outputFolder)) {
             New-Item -Path $outputFolder -ItemType Directory
         }
