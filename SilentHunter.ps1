@@ -1079,8 +1079,8 @@ try {
         #group info check box
         if ($var_groupCheck.IsChecked)
         {
-           $groups = Get-LocalGroup -ComputerName $targets -Credential $creds
-           $groupMembers = Get-LocalGroupMember -ComputerName $targets -Credential $creds
+           $groups = Get-LGroup -ComputerName $targets -Credential $creds
+           $groupMembers = Get-LGroupMembers -ComputerName $targets -Credential $creds
            $groups | Export-CSV -Path ($outputFolder + "groups.csv") -NoTypeInformation
            $groupMembers | Export-CSV -Path ($outputFolder + "groupmembers.csv") -NoTypeInformation
            $BaselineInfo.Groups = $groups
