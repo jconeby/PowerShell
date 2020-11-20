@@ -829,7 +829,7 @@ $inputXML = @"
         </Grid.ColumnDefinitions>
         <Button Content="Choose File" Name ="browse1Btn" HorizontalAlignment="Left" Height="25" Margin="12,42,0,0" VerticalAlignment="Top" Width="81" Grid.Row="1" Grid.Column="2"/>
         <TextBox Name="targTxt" HorizontalAlignment="Left" Height="25" Margin="103,42,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="425" Grid.Column="2" Grid.Row="1"/>
-        <Label Content="Select the CSV file containing your targets or enter your targets" FontWeight="SemiBold" HorizontalAlignment="Left" Height="32" Margin="3,10,0,0" VerticalAlignment="Top" Width="356" Grid.Row="1" Grid.Column="2"/>
+        <Label Content="Select a CSV or Text file or enter your targets" FontWeight="SemiBold" HorizontalAlignment="Left" Height="32" Margin="3,10,0,0" VerticalAlignment="Top" Width="356" Grid.Row="1" Grid.Column="2"/>
         <Button Content="Run Script" Name="runButton" HorizontalAlignment="Left" Height="33" Margin="205,287,0,0" VerticalAlignment="Top" Width="154" Grid.Column="2" Grid.Row="1" RenderTransformOrigin="0.881,0.311"/>
         <Label Content="Username:" HorizontalAlignment="Left" Height="25" Margin="7,55,0,0" VerticalAlignment="Top" Width="76" Grid.Column="2"/>
         <TextBox Name="userTxt" HorizontalAlignment="Left" Height="23" Margin="76,55,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="186" Grid.Column="2"/>
@@ -1213,7 +1213,7 @@ try {
         {
            $regIOC = Import-Csv -Path (Get-RegIOCForm)
            $tools  = Get-RegistryIOC -ComputerName $targets -Credential $creds -RegList $regIOC
-           $tools | Export-CSV -Path ($outputFolder + "events.csv") -NoTypeInformation
+           $tools | Export-CSV -Path ($outputFolder + "tools.csv") -NoTypeInformation
            $BaselineInfo.ToolEvidence = $tools
 
         }
