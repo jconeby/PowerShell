@@ -668,7 +668,6 @@ $inputXML = @"
             <ColumnDefinition/>
             <ColumnDefinition Width="7*"/>
         </Grid.ColumnDefinitions>
-
         <Button Content="Choose File" Name ="eventbrowseBtn" HorizontalAlignment="Left" Height="25" Margin="14,45,0,0" VerticalAlignment="Top" Width="81" Grid.Row="1" Grid.Column="2"/>
         <TextBox Name="eventTxt" HorizontalAlignment="Left" Height="25" Margin="105,45,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="392" Grid.Column="2" Grid.Row="1"/>
         <Label Content="Select the CSV file containing the events you want to query" FontWeight="SemiBold" HorizontalAlignment="Left" Height="32" Margin="7,13,0,0" VerticalAlignment="Top" Width="335" Grid.Row="1" Grid.Column="2"/>
@@ -678,7 +677,6 @@ $inputXML = @"
         <Label Content="Start Date:" Grid.Column="2" HorizontalAlignment="Left" Height="27" Margin="10,105,0,0" Grid.Row="1" VerticalAlignment="Top" Width="66"/>
         <DatePicker x:Name="endDate" Grid.Column="2" HorizontalAlignment="Left" Height="27" Margin="280,105,0,0" Grid.Row="1" VerticalAlignment="Top" Width="105" RenderTransformOrigin="0.835,0.26"/>
         <Label Content="End Date:" Grid.Column="2" HorizontalAlignment="Left" Height="27" Margin="214,105,0,0" Grid.Row="1" VerticalAlignment="Top" Width="66"/>
-
     </Grid>
 </Window>
 "@
@@ -759,16 +757,13 @@ $inputXML = @"
             <ColumnDefinition/>
             <ColumnDefinition Width="7*"/>
         </Grid.ColumnDefinitions>
-
         <Button Content="Choose File" Name ="regiocbrowseBtn" HorizontalAlignment="Left" Height="25" Margin="14,45,0,0" VerticalAlignment="Top" Width="81" Grid.Row="1" Grid.Column="2"/>
         <TextBox Name="regTxt" HorizontalAlignment="Left" Height="25" Margin="105,45,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="392" Grid.Column="2" Grid.Row="1"/>
         <Label Content="Select the CSV file containing the registry keys and associated tools" FontWeight="SemiBold" HorizontalAlignment="Left" Height="32" Margin="7,13,0,0" VerticalAlignment="Top" Width="392" Grid.Row="1" Grid.Column="2"/>
         <Button Content="Save" Name="regSaveButton" HorizontalAlignment="Left" Height="33" Margin="194,102,0,0" VerticalAlignment="Top" Width="99" Grid.Column="2" Grid.Row="1" RenderTransformOrigin="0.881,0.311"/>
         <Label FontWeight="Bold">Application Options</Label>
-
     </Grid>
 </Window>
-
 "@
 
 $inputXML = $inputXML -replace 'mc:Ignorable="d"', '' -replace "x:N",'N' -replace '^<Win.*', '<Window'
@@ -832,7 +827,6 @@ $inputXML = @"
             <ColumnDefinition Width="8*"/>
             <ColumnDefinition Width="0*"/>
         </Grid.ColumnDefinitions>
-
         <Button Content="Choose File" Name ="browse1Btn" HorizontalAlignment="Left" Height="25" Margin="12,42,0,0" VerticalAlignment="Top" Width="81" Grid.Row="1" Grid.Column="2"/>
         <TextBox Name="targTxt" HorizontalAlignment="Left" Height="25" Margin="103,42,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="425" Grid.Column="2" Grid.Row="1"/>
         <Label Content="Select the CSV file containing your targets or enter your targets" FontWeight="SemiBold" HorizontalAlignment="Left" Height="32" Margin="3,10,0,0" VerticalAlignment="Top" Width="356" Grid.Row="1" Grid.Column="2"/>
@@ -843,7 +837,6 @@ $inputXML = @"
         <PasswordBox Name="passTxt" HorizontalAlignment="Left" VerticalAlignment="Top" Width="186" Grid.Column="2" Margin="342,55,0,0" Height="23"/>
         <Label Content="Enter the credentials" FontWeight="SemiBold" HorizontalAlignment="Left" Height="26" Margin="0,23,0,0" VerticalAlignment="Top" Width="129" Grid.Column="2"/>
         <Label FontWeight="Bold">Application Options</Label>
-
         <Label Content="Select the information you want to gather" FontWeight="SemiBold" HorizontalAlignment="Left" Height="32" Margin="3,82,0,0" VerticalAlignment="Top" Width="242" Grid.Row="1" Grid.Column="2"/>
         <CheckBox Content="Processes" Name="processCheck" Grid.Column="2" HorizontalAlignment="Left" Margin="12,119,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Width="71"/>
         <CheckBox Content="Services" Name="serviceCheck" Grid.Column="2" HorizontalAlignment="Left" Margin="12,148,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Width="62"/>
@@ -897,8 +890,22 @@ try {
         $targBrowser.ShowDialog()
         $path = $targBrowser.FileName
         $extension = ($path[($path.Length - 3)..$path.Length]) -join ""
+        #CSV file handler
         if($extension -eq "csv") {
-            $var_targTxt.Text = (Import-Csv -Path ($targBrowser.FileName) -Header "Hosts").Hosts 
+            
+            $importTargs = Import-Csv -Path $targBrowser.FileName -Header "Hosts"
+
+            $targString = ''
+            for($i=0;$i -lt ($importTargs.Hosts.Length); $i++) {
+    
+                if($i -lt ($importTargs.Hosts.Length - 1)) {
+                    $targString += ($importTargs.Hosts[$i].toString() + ",")
+                    } else {
+                        $targString += $importTargs.Hosts[$i].ToString()
+                     }
+             }
+             $var_targTxt.Text = $targString
+            #txt file handler     
             } elseif($extension -eq "txt") {
                 $var_targTxt.Text = Get-Content -Path $path
                 } else {
