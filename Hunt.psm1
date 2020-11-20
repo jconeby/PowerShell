@@ -1104,3 +1104,26 @@ function Group-FilesByHash
      }
  }
 
+<# You can use this function to add a message within a Windows events object
+ This can make it much easier to query for a specific item within the message
+ field of the event logs.
+ Example: Add-Message -Events $baseline.Events
+ #>
+ 
+ function Add-Message 
+{
+    [cmdletbinding()]
+    Param
+    (
+        [Parameter()]
+        [PSCustomObject]
+        $Events
+    )
+
+   Process
+   {
+        $events = foreach ($event in $events)
+            { $event | Add-Member -NotePropertyName SearchMessage -NotePropertyValue ($event.Message -split "`n")}
+         
+        return $events
+   }   
