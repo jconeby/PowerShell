@@ -1,3 +1,6 @@
+[void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing") 
+[void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
+
 Add-Type -AssemblyName PresentationFramework
 
 #Function used to pull processes running on machines on a network
@@ -1184,7 +1187,7 @@ try {
            $events               = Get-ImportantEvent -ComputerName $targets -Credential $creds -EventList (Import-Csv -Path $eventQuery.Location) -BeginTime $startDate -EndTime $endDate
            $groupEvents          = Group-Event -EventRecord $events -EventList (Import-Csv -Path $eventQuery.Location)
            $events | Export-CSV -Path ($outputFolder + "events.csv") -NoTypeInformation
-           $groupEvents > ($outputFolder + "GroupedEvents.txt")
+           $groupEvents | Export-CSV -Path ($outputFolder + "GroupedEvents.txt") -NoTypeInformation
            $BaselineInfo.Events = $events
            $BaselineInfo.GroupedEvents = $groupEvents
 
