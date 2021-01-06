@@ -1126,4 +1126,38 @@ function Group-FilesByHash
             { $event | Add-Member -NotePropertyName SearchMessage -NotePropertyValue ($event.Message -split "`n")}
          
         return $events
-   }   
+   }
+   
+   function Get-NamedPipe 
+{ 
+    [cmdletbinding()]
+    Param
+    (
+        [Parameter()]
+        [string[]]
+        $ComputerName,
+
+        [pscredential]
+        $Credential
+    )
+    Begin
+    {
+        If (!$Credential) {$Credential = Get-Credential}
+    }
+
+    Process
+    {
+        $namedPipes = Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
+            [System.IO.Directory]::GetFiles("\\.\\pipe\\")
+        }
+
+        foreach ($pipe in $namedPipes)
+        {
+            [PSCustomObject]@{
+                                Name = $pipe
+                                PSComputerName = $pipe.PSComputerName
+                             }
+        }
+
+    }
+}
