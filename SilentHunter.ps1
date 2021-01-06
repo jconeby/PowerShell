@@ -642,6 +642,41 @@ function Get-USB
 }
 
 
+function Get-NamedPipe 
+{ 
+    [cmdletbinding()]
+    Param
+    (
+        [Parameter()]
+        [string[]]
+        $ComputerName,
+
+        [pscredential]
+        $Credential
+    )
+    Begin
+    {
+        If (!$Credential) {$Credential = Get-Credential}
+    }
+
+    Process
+    {
+        $namedPipes = Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
+            [System.IO.Directory]::GetFiles("\\.\\pipe\\")
+        }
+
+        foreach ($pipe in $namedPipes)
+        {
+            [PSCustomObject]@{
+                                Name = $pipe
+                                PSComputerName = $pipe.PSComputerName
+                             }
+        }
+
+    }
+}
+
+
 <#Event Form to ask user what the date range is for pulling logs and lets them select
 a file containing the event properties that they want to query for #>
 
@@ -858,6 +893,7 @@ $inputXML = @"
         <CheckBox Content="Shares" Name="sharesCheck" Grid.Column="2" HorizontalAlignment="Left" Margin="127,235,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Width="55"/>
         <CheckBox Content="Software" x:Name="softwareCheck" Grid.Column="2" HorizontalAlignment="Left" Margin="395,119,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Width="92"/>
         <CheckBox Content="USB Usage" Name="usbCheck" Grid.Column="2" HorizontalAlignment="Left" Margin="395,148,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Width="92"/>
+        <CheckBox Content="Named Pipes" Name="namedPipes" Grid.Column="2" HorizontalAlignment="Left" Margin="395,177,0,0" Grid.Row="1" VerticalAlignment="Top" Height="15" Width="92"/>
     </Grid>
 </Window>
 "@
@@ -953,6 +989,7 @@ try {
             ToolEvidence        = ''
             Software            = ''
             USB                 = ''
+            NamedPipes          = ''
             } }
 
         #Create creds
@@ -1242,6 +1279,15 @@ try {
         {
            $usb = Get-USB -ComputerName $targets -Credential $creds
            $BaselineInfo.USB = $usb
+           
+        } 
+
+        #Named Pipes check box
+        if ($var_namedPipes.IsChecked)
+        {
+           $namedPipes = Get-NamedPipe -ComputerName $targets -Credential $creds
+           $BaselineInfo.NamedPipes = $namedPipes
+           $namedPipes | Export-Csv -Path ($outputFolder + "namedpipes.csv") -NoTypeInformation
            
         } 
 
