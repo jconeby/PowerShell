@@ -1270,7 +1270,7 @@ try {
            
         }
 
-        $PB.Value = 96
+        $PB.Value = 94
         $ObjForm.Refresh()
 		Start-Sleep -Milliseconds 150
 
@@ -1281,6 +1281,10 @@ try {
            $BaselineInfo.USB = $usb
            
         } 
+
+        $PB.Value = 96
+        $ObjForm.Refresh()
+		Start-Sleep -Milliseconds 150
 
         #Named Pipes check box
         if ($var_namedPipes.IsChecked)
