@@ -561,14 +561,67 @@ function Get-LoggedOnUser
     Process
     {
         Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
-            try
-            {query user}
-            catch
-            {Get-CimInstance -Class Win32_ComputerSystem | Select-Object Username}
-        }
+            $queryuser     = query user
+            $loggedOnUsers = Get-WmiObject win32_loggedonuser
+            $sessions      = Get-WmiObject win32_logonsession
+            $logons = @()
+
+            foreach ($user in $loggedOnUsers)
+            {
+                $user.Antecedent -match '.+Domain="(.+)",Name="(.+)"$' > $nul
+                $domain = $matches[1]
+                $username = $matches[2]
+    
+                $user.Dependent -match '.+LogonId="(\d+)"$' > $nul
+                $LogonId = $matches[1]
+
+                $logons += [PSCustomObject]@{
+                    Domain  = $domain
+                    User    = $username
+                    LogonId = $LogonId
+                    }    
+            }
+
+            $logonDetail = foreach ($session in $sessions)
+            {
+            <# Determined what each login id cooresponds too from the link below
+            https://social.technet.microsoft.com/Forums/Lync/en-US/ff70e069-5453-4250-b5c7-8d52ce558ce2/logon-types-in-windows-server?forum=winserverDS    
+            #>  
+                $logonType = switch ($session.LogonType)
+                        {
+                            1 {"Interactive"}
+                            2 {"Network" }
+                            3 {"Batch"}
+                            4 {"Service"}
+                            5 {"Unlock"}
+                            6 {"Network Cleartext"}
+                            7 {"New Credentials"}
+                            8 {"Remote Interactive"}
+                            9 {"Cached Interactive"}
+                            Default {"Unknown"}
+                        }
+
+                                 [PSCustomObject]@{
+                                    LogonId     = $session.LogonId
+                                    LogonTypeId = $session.LogonType
+                                    LogonType   = $logonType
+                                    Domain      = ($logons | Where {$_.LogonId -eq $session.LogonId}).Domain
+                                    User        = ($logons | Where {$_.LogonId -eq $session.LogonId}).User
+                                    StartTime   = [management.managementdatetimeconverter]::todatetime($session.starttime)
+                                    }
+
+                }
+
+                [PSCustomObject]@{
+                                    QueryUserResults = $queryuser
+                                    LogonDetail      = $logonDetail
+                                 }
+         
+         }
+
+           
     }    
 } 
-
 
 function Get-Prefetch 
 {
