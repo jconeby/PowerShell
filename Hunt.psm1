@@ -1214,3 +1214,37 @@ function Group-FilesByHash
 
     }
 }
+
+function Get-Netstat {
+$text = netstat -ano
+$lines = for($i=4;$i -lt $text.Length;$i++) {$text[$i].Replace('\s','')}
+$objects = @()
+
+foreach($line in $lines)
+{
+  $line = $line.Split(' ')
+  $newArray = @()
+  
+  foreach($char in $line)
+  {
+    if($char.Length -gt 0)
+    {
+      $newArray += $char
+    }
+  }
+
+  $object = [PSCustomObject]@{
+                Protocol       = $newArray[0]
+                LocalAddress   = $newArray[1]
+                ForeignAddress = $newArray[2]
+                State          = $newArray[3]
+                PID            = $newArray[4]
+                ProcessName    = if($newArray[4] -ne $null){(Get-Process -Id $newArray[4]).Name}
+               
+  }
+
+  $objects += $object
+
+}
+return $objects
+}
