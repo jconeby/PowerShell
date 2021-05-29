@@ -1248,3 +1248,32 @@ foreach($line in $lines)
 }
 return $objects
 }
+
+function Get-ServiceInfo
+{
+    [cmdletbinding()]
+    Param
+    (
+        [Parameter(ValueFromPipeline=$true)]
+        [string[]]
+        $ComputerName,
+
+        [pscredential]
+        $Credential
+    )
+    Begin
+    {
+        If (!$Credential) {$Credential = Get-Credential}
+    }
+    Process
+    {
+        Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
+        Get-WmiObject -Class Win32_Service | Select State,Name,DisplayName,ProcessId,
+        @{n='ProcessName';e={(Get-WmiObject -Class Win32_Process -Filter "ProcessId='$($_.ProcessId)'").Name}}, 
+        @{n='ParentProcessID';e={(Get-WmiObject -Class Win32_Process -Filter "ProcessId='$($_.ProcessId)'").ParentProcessID}},
+        @{n='ParentProcessName';e={(Get-Process -ID (Get-WmiObject -Class Win32_Process -Filter "ProcessId='$($_.ProcessId)'").ParentProcessID).Name}}
+            
+        }                          
+                                 
+    }
+} 
