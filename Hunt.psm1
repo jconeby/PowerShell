@@ -1306,7 +1306,7 @@ function Export-EventLog
 
         [Parameter(Mandatory=$false)]
         [string]
-        $EndDate = (Get-Date).ToString('MM/dd/yyyy'),
+        $EndDate = (Get-Date).AddDays(1).ToString('MM/dd/yyyy'),
 
         [Parameter(Mandatory=$false)]
         [string]
