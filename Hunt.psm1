@@ -1277,3 +1277,121 @@ function Get-ServiceInfo
                                  
     }
 } 
+
+function Export-EventLog
+{
+
+[cmdletbinding()]
+    Param
+    (
+        [Parameter(ValueFromPipeline=$true,Mandatory=$true)]
+        [string[]]
+        $ComputerName,
+
+        [Parameter(Mandatory=$true)]
+        [pscredential]
+        $Credential,
+
+        [Parameter(Mandatory=$false)]
+        [string]
+        $LogName='Security',
+
+        [Parameter(Mandatory=$false)]
+        [PSCustomObject]
+        $EventList,
+
+        [Parameter(Mandatory=$false)]
+        [string]
+        $StartDate = (Get-Date).AddDays(-1).ToString('MM/dd/yyyy'),
+
+        [Parameter(Mandatory=$false)]
+        [string]
+        $EndDate = (Get-Date).ToString('MM/dd/yyyy'),
+
+        [Parameter(Mandatory=$false)]
+        [string]
+        $Destination = 'C:\Temp\EventLog.evtx',
+
+        [Parameter(Mandatory=$false)]
+        [string]
+        $LocalPath = 'C:\Temp\EventLog.evtx'
+
+    )
+
+    Begin
+    {
+        If (!$Credential) {$Credential = Get-Credential}
+    }
+
+    Process
+    {
+        Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock {
+
+        # Test if destination file already exists
+        if(Test-Path -Path $using:Destination)
+        {
+           return Write-Error -Message "File already exists"
+        }
+
+        # create time frame
+        function GetMilliseconds ($date) {
+            $ts = New-TimeSpan -Start $date -End (Get-Date)
+            [math]::Round($ts.TotalMilliseconds)
+            } # end function
+
+         $StartDate = GetMilliseconds(Get-Date $using:StartDate)
+         $EndDate = GetMilliseconds(Get-Date $using:EndDate)
+        
+        # If an event list is used create a query string for it
+        if($using:EventList -ne $null) 
+        {
+             # Put only the IDs of the selected logName into an array
+             $IDs = $using:EventList | Where-Object {$_.Event_Log -eq $using:LogName} | Select ID
+
+            # Create the start of the query string
+            $queryString = "("
+
+            # Loop through to add all the Event IDs to query string
+            for($i=0;$i -lt ($IDs.Length -1);$i++)
+            {
+              $nextString = $IDs[$i].ID.ToString()
+              $queryString += ("EventID=$nextString" + " or ")
+
+            } #end of loop
+
+            # Handle the last Event ID
+            [Int32]$lastNum = ($IDs.Length - 1)
+            $lastString = $IDs[$lastNum].ID.ToString()
+            $queryString += "EventID=$lastString)"
+
+            # Complete Query string
+            $query = "*[System[$queryString and TimeCreated[timediff(@SystemTime) >= $endDate] and TimeCreated[timediff(@SystemTime) <= $startDate]]]"
+
+          } # end of if
+
+          else {
+            $query = "*[System[TimeCreated[timediff(@SystemTime) >= $endDate] and TimeCreated[timediff(@SystemTime) <= $startDate]]]"
+
+          } # end of else
+
+        # Create Event Session Object
+        $EventSession = New-Object System.Diagnostics.Eventing.Reader.EventLogSession
+
+        # Export filtered event log to destination machine
+        $EventSession.ExportLogAndMessages($using:LogName,'LogName',$query,$using:Destination)
+
+
+    }#End of Script Block
+
+    # Create a session with the remote machine
+    $session = New-PSSession -ComputerName $ComputerName -Credential $creds
+
+    # Copy the file from the remote machine to your local machine
+    Copy-Item -Path $Destination -Destination $LocalPath -FromSession $session
+
+    # Remove event log from remote machine
+    Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock { Remove-Item -Path $using:Destination }
+
+  }#End of Process
+
+}
