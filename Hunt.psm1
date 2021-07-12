@@ -1234,19 +1234,21 @@ foreach($line in $lines)
   }
 
   $object = [PSCustomObject]@{
-                Protocol       = $newArray[0]
-                LocalAddress   = $newArray[1]
+                Protocol = $newArray[0]
+                LocalAddress = $newArray[1]
                 ForeignAddress = $newArray[2]
-                State          = $newArray[3]
-                PID            = $newArray[4]
-                ProcessName    = if($newArray[4] -ne $null){(Get-Process -Id $newArray[4]).Name}
+                State          = If($newArray[0] -eq 'TCP') {$newArray[3]} else {$null}
+                PID            = If($newArray[0] -eq 'TCP') {$newArray[4]} else {$newArray[3]}
+                ProcessName    = if(($newArray[4] -ne $null) -and ($newArray[0] -eq 'TCP')){(Get-Process -Id $newArray[4]).Name} elseif(($newArray[3] -ne $null) -and ($newArray[0] -eq 'UDP')){(Get-Process -Id $newArray[3]).Name}
                
   }
 
   $objects += $object
 
 }
+
 return $objects
+
 }
 
 function Get-ServiceInfo
