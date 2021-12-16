@@ -27,20 +27,26 @@ function Get-RecentDocs
     {
         Invoke-Command -ComputerName $ComputerName -Credential $Credential -ScriptBlock { 
 
-            $files = Get-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs\.xlsx
+            Get-ChildItem -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs | ForEach-Object {
+ 
+                 $files = Get-ItemProperty ("HKCU:\" + $_.Name.Substring($_.Name.IndexOf('\')+1))
+                 $extension = $_.Name.Substring($_.Name.IndexOf('.')+1)
 
-            $files.PSObject.Properties | ForEach-Object {
-              if($_.Name -match "^\d+$")
-              {
-                [PSCustomObject]@{
-                              Keyname = $_.Name; 
-                              FileName = [System.Text.Encoding]::ASCII.GetString($_.Value)}
-              
-              } #End of If
-            } # End of foreach
+                     $files.PSObject.Properties | ForEach-Object {
+                          if($_.Name -match "^\d+$")
+                          {
+                              [PSCustomObject]@{
+                                               Extension = $extension
+                                               FileName = [System.Text.Encoding]::ASCII.GetString($_.Value)
+                                               }
+                          } #End if
+                     } #End ForEach
 
-               
-           }
+                } #End ForEach
         
-      } 
-} 
+      } #End Invoke
+
+    } #End Process 
+
+
+}
